@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+const { CLIENT_RENEG_LIMIT } = require("tls");
 require("console.table");
 var connection = mysql.createConnection({
   host: "localhost",
@@ -30,7 +31,8 @@ function runSearch() {
                 "View All Employees",
                 "View All Employees By Role",
                 "View All Departments By Role",
-                "Add Role"
+                "Add Role",
+                "Exit"
             ]
         })
         .then(answer => {
@@ -48,23 +50,25 @@ function runSearch() {
             case "Add Role":
                 addRole();
                 break;
+            case "Exit":
+                break;
         }
         })
 }
 
 
 function allEmployees() {
-    var query = "SELECT id, first_name, last_name FROM employees_db.employee";
+    var query = "SELECT first_name, last_name, employee.id, title FROM employee INNER JOIN role ON employee.role_id = role.id";
     connection.query(query, function(err, res){
         let data = JSON.parse(JSON.stringify(res));
         console.table(res);
-
-    })
+        console.log("================================================");
+        runSearch();
+    });
 }
 
 function employeesByRole() {
     var query = "SELECT title, employee.id, first_name, last_name FROM role INNER JOIN employee ON role.id = employee.id";
-    let employeeRole = [];
     connection.query(query, function(err, res){
         let data = JSON.parse(JSON.stringify(res));
         console.table(res);
@@ -72,9 +76,13 @@ function employeesByRole() {
 }
 
 function departmentsByRole() {
-
+    var query = "SELECT department_id, name, salary FROM department INNER JOIN role ON department.id = role.department_id";
+    connection.query(query, function(err,res){
+        let data = JSON.parse(JSON.stringify(res));
+        console.table(res);
+    })
 }
-
+    
 function addRole() {
     var dept = "SELECT name FROM department";
     connection.query(dept, function(err,res) {
