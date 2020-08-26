@@ -1,17 +1,7 @@
-var mysql = require("mysql");
-var inquirer = require("inquirer");
-const { CLIENT_RENEG_LIMIT } = require("tls");
-require("console.table");
-var connection = mysql.createConnection({
-  host: "localhost",
-  // Your port; if not 3306
-  port: 3306,
-  // Your username
-  user: "root",
-  // Your password
-  password: "password",
-  database: "employees_db"
-});
+const connection = require("./config/connection.js");
+const mysql = require("mysql");
+const inquirer = require("inquirer");
+
 connection.connect(function(err) {
     if (err) throw err;
     runSearch();
@@ -20,7 +10,7 @@ connection.connect(function(err) {
 //inquirer prompts, with switch case that says
 //if user does this, run this inquirer prompt, if the user runs that, run that inquirer prompt
 
-//view departments, roles and employees
+//view allDepartments, roles and employees
 function runSearch() {
     inquirer
         .prompt({
@@ -29,8 +19,8 @@ function runSearch() {
             message: "What would you like to do:",
             choices: [
                 "View All Employees",
-                "View All Employees By Role",
-                "View All Departments By Role",
+                "View All Roles",
+                "View All Departments",
                 "Add Role",
                 "Exit"
             ]
@@ -41,11 +31,11 @@ function runSearch() {
             case "View All Employees":
                 allEmployees();
                 break;
-            case "View All Employees By Role":
-                employeesByRole();
+            case "View All Roles":
+                allRoles();
                 break;
-            case "View All Departments By Role":
-                departmentsByRole();
+            case "View All Departments":
+                allDepartments();
                 break;
             case "Add Role":
                 addRole();
@@ -58,7 +48,7 @@ function runSearch() {
 
 
 function allEmployees() {
-    var query = "SELECT first_name, last_name, employee.id, title FROM employee INNER JOIN role ON employee.role_id = role.id";
+    var query = "SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.department, employee.manager_id FROM employee INNER JOIN role ON employee.id = role.id INNER JOIN department ON department.id = role.department_id ORDER BY id;";
     connection.query(query, function(err, res){
         let data = JSON.parse(JSON.stringify(res));
         console.table(res);
@@ -67,31 +57,37 @@ function allEmployees() {
     });
 }
 
-function employeesByRole() {
-    var query = "SELECT title, employee.id, first_name, last_name FROM role INNER JOIN employee ON role.id = employee.id";
+function allRoles() {
+    var query = "SELECT role.title, department.department, role.department_id FROM role INNER JOIN department ON department.id = role.department_id ORDER BY department_id; ";
     connection.query(query, function(err, res){
         let data = JSON.parse(JSON.stringify(res));
         console.table(res);
+        console.log("================================================");
+        runSearch();
     })
 }
 
-function departmentsByRole() {
-    var query = "SELECT department_id, name, salary FROM department INNER JOIN role ON department.id = role.department_id";
+function allDepartments() {
+    var query = "SELECT department.id, department.department FROM department ORDER BY id;";
     connection.query(query, function(err,res){
         let data = JSON.parse(JSON.stringify(res));
         console.table(res);
+        console.log("================================================");
+        runSearch();
     })
 }
-    
+
+//add a role
 function addRole() {
-    var dept = "SELECT name FROM department";
+    var dept = "SELECT * FROM department ORDER BY id";
     connection.query(dept, function(err,res) {
 
-        let data = JSON.parse(JSON.stringify(res));
+        var data = JSON.parse(JSON.stringify(res));
+        console.log(data);
         let departmentArr = [];
 
         for(var i = 0; i < data.length; i++){
-            departmentArr.push(data[i].name);
+            departmentArr.push(data[i].id + ". "+ data[i].department);
         }
         console.log("dept Arr: ", departmentArr);
         inquirer
@@ -100,9 +96,61 @@ function addRole() {
                     type: "list",
                     message: "Choose the department to add the role too: ",
                     choices: departmentArr,
-                    name: "department"
+                    name: "chosenDepartment"
                 }
             ])
+            .then(answer => {
+                //answer holds the department we want to add a role to
+                console.log("the role the user wants to add: ", answer.chosenDepartment)
+                let targetDeptId = answer.chosenDepartment.split(". ")[0];
+                let targetDept = answer.chosenDepartment.split(". ")[1];
 
-    })
+                console.log("The department we will add a role too: ", targetDept);
+                console.log("The department id the user wants to add role too: ", targetDeptId);
+                // console.log("Just department name: ", justDept);
+                inquirer
+                    .prompt([
+                        {
+                        type: "input",
+                        message: "Please enter the role you would like to add:",
+                        name: "newRole"
+                    },  {
+                        type: "input",
+                        message: "Please enter the salary of this role: ",
+                        name: "salary"
+                    }
+                    ])
+                    .then(answer => {
+                        // this answer holds the value of the role we want to add
+                        console.log("New role we want to add: ", answer.newRole);
+                        let query = "INSERT INTO role SET ?";
+                 
+                        console.log("Submitted data: ", answer.newRole + " " + answer.salary + " " + targetDeptId);
+
+                        connection.query(query, 
+                            {
+                                title: answer.newRole,
+                                salary: answer.salary,
+                                department_id: targetDeptId
+                            },
+                                 function(err, res) {
+                            
+                                // console.log("Our query: ", query);
+                                console.log("***added our new role***");
+                                runSearch();
+                                })
+                    })
+            });
+    });
 }
+
+//add an employee
+function addEmployee() {
+
+}
+
+//add a department 
+function addDepartment() {
+
+}
+

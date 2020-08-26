@@ -2,10 +2,10 @@
 USE employees_db;
 
 INSERT INTO department
-    (name)
+    (department)
 VALUES
     ("Sales"),
-    ("engineering"),
+    ("Engineering"),
     ("HR"),
     ("IT");
 
