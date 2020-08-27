@@ -77,7 +77,7 @@ function allDepartments() {
     })
 }
 
-//add a role
+//Add a role
 function addRole() {
     var dept = "SELECT * FROM department ORDER BY id";
     connection.query(dept, function(err,res) {
@@ -97,6 +97,14 @@ function addRole() {
                     message: "Choose the department to add the role too: ",
                     choices: departmentArr,
                     name: "chosenDepartment"
+                }, {
+                    type: "input",
+                    message: "Please enter the role you would like to add:",
+                    name: "newRole"
+                },  {
+                    type: "input",
+                    message: "Please enter the salary of this role: ",
+                    name: "salary"
                 }
             ])
             .then(answer => {
@@ -107,39 +115,24 @@ function addRole() {
 
                 console.log("The department we will add a role too: ", targetDept);
                 console.log("The department id the user wants to add role too: ", targetDeptId);
-                // console.log("Just department name: ", justDept);
-                inquirer
-                    .prompt([
-                        {
-                        type: "input",
-                        message: "Please enter the role you would like to add:",
-                        name: "newRole"
-                    },  {
-                        type: "input",
-                        message: "Please enter the salary of this role: ",
-                        name: "salary"
-                    }
-                    ])
-                    .then(answer => {
-                        // this answer holds the value of the role we want to add
-                        console.log("New role we want to add: ", answer.newRole);
-                        let query = "INSERT INTO role SET ?";
-                 
-                        console.log("Submitted data: ", answer.newRole + " " + answer.salary + " " + targetDeptId);
+                // this answer holds the value of the role we want to add
+                console.log("New role we want to add: ", answer.newRole);
+                let query = "INSERT INTO role SET ?";
+            
+                console.log("Submitted data: ", answer.newRole + " " + answer.salary + " " + targetDeptId);
 
-                        connection.query(query, 
-                            {
-                                title: answer.newRole,
-                                salary: answer.salary,
-                                department_id: targetDeptId
-                            },
-                                 function(err, res) {
-                            
-                                // console.log("Our query: ", query);
-                                console.log("***added our new role***");
-                                runSearch();
-                                })
-                    })
+                connection.query(query, 
+                    {
+                        title: answer.newRole,
+                        salary: answer.salary,
+                        department_id: targetDeptId
+                    },
+                    function(err, res) {
+                    
+                        // console.log("Our query: ", query);
+                        console.log("***added our new role***");
+                        runSearch();
+                        })
             });
     });
 }
