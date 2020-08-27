@@ -1,1 +1,0 @@
-// class db + all query's to write to db
