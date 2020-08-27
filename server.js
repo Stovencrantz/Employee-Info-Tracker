@@ -21,7 +21,9 @@ function runSearch() {
                 "View All Employees",
                 "View All Roles",
                 "View All Departments",
+                "Add Employee",
                 "Add Role",
+                "Add Department",
                 "Exit"
             ]
         })
@@ -37,8 +39,14 @@ function runSearch() {
             case "View All Departments":
                 allDepartments();
                 break;
+            case "Add Employee": 
+                addEmployee();
+                break;
             case "Add Role":
                 addRole();
+                break;
+            case "Add Department":
+                addDepartment();
                 break;
             case "Exit":
                 break;
@@ -75,6 +83,11 @@ function allDepartments() {
         console.log("================================================");
         runSearch();
     })
+}
+
+//add an employee
+function addEmployee() {
+
 }
 
 //Add a role
@@ -137,13 +150,26 @@ function addRole() {
     });
 }
 
-//add an employee
-function addEmployee() {
 
-}
 
 //add a department 
 function addDepartment() {
+    inquirer    
+        .prompt([
+            {
+                type: "input",
+                message: "Please enter the new department you would like to add: ",
+                name: "newDept"
+            }
+        ])
+        .then(answer => {
+            console.log("The user wants to add a " + answer.newDept);
+            let query = "INSERT INTO department SET ?"
+            connection.query(query, {department: answer.newDept}, function(err, res){
+                console.log("***Added a new department***");
+                runSearch();
+            })
 
+        })
 }
 
