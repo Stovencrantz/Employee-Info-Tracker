@@ -58,12 +58,12 @@ function runSearch() {
         })
 }
 
-//VIEW ALL EMPLOYEES
+// VIEW ALL EMPLOYEES
 function allEmployees() {
-    var query = "SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.department, employee.manager_id FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON department.id = role.department_id ORDER BY id;";
+    var query = "SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.department FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON department.id = role.department_id ORDER BY id";
     connection.query(query, function(err, res){
-        let data = JSON.parse(JSON.stringify(res));
-        console.table(res);
+        let data = JSON.parse(JSON.stringify(res)); 
+        console.table(data);
         console.log("================================================");
         runSearch();
     });
@@ -71,7 +71,7 @@ function allEmployees() {
 
 //VIEW ALL ROLES
 function allRoles() {
-    var query = "SELECT role.title, department.department, role.department_id FROM role INNER JOIN department ON department.id = role.department_id ORDER BY department_id; ";
+    var query = "SELECT role.id, role.title, department.department FROM role INNER JOIN department ON department.id = role.department_id ORDER BY department_id; ";
     connection.query(query, function(err, res){
         let data = JSON.parse(JSON.stringify(res));
         console.table(res);
@@ -281,7 +281,7 @@ function updateEmployee() {
             ])
             .then(answer => {
                 console.log("Employee and their new role: " + answer.chosenEmployee + " " + answer.updatedRole);
-                console.log("Role_id: ", answer.updatedRole.split(". ")[0]);
+                console.log("New Role_id: ", answer.updatedRole.split(". ")[0]);
                 console.log("Employee id: ", answer.chosenEmployee.split(". ")[0]);
 
                 //query to the employee table to update the role_id column of our specified employee id
