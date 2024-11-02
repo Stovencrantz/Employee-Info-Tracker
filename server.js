@@ -1,5 +1,5 @@
 const connection = require("./config/connection.js");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const inquirer = require("inquirer");
 require("console.table");
 
