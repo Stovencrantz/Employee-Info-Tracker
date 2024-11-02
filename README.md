@@ -16,7 +16,7 @@
 - [Questions](#questions)
 
 ## Installation:
-    The user must open their terminal and run the command `npm i` followed by `node server.js`
+    The user must open their terminal and run the command `npm i` followed by `node server.js`. Ensure Mysql is installed and the shell is running in background. Execute `mysql -u root -p` and enter your user password to run shell.
 ## Usage:
     The user will navigate through the main directory and then follow the prompts.
 ## Contributing:
